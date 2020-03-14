@@ -1,0 +1,12 @@
+1. Clear the contents of the npm-shrinkwrap.json file.
+
+2. Copy + paste the code below into npm-shrinkwrap.json
+    {
+    "dependencies": {
+        "graceful-fs": {
+            "version": "4.2.2"
+        }
+    }
+    }
+
+3. In terminal, run npm install 

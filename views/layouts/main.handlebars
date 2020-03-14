@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html lang="en-us">
+
+<head>
+
+	<meta charset="UTF-8">
+	<title>XYZ Exercise</title>
+
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+	<!-- Firebase Reference -->
+	<script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
+
+	<!-- Moment.js Reference -->
+	<!-- <script src="http://momentjs.com/downloads/moment.js"></script>   -->
+	<script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
+
+	<!-- CSS Style & Fonts -->
+	<link rel="stylesheet" href="/css/main.css">
+	<link href="https://fonts.googleapis.com/css?family=Monoton|Syncopate:700" rel="stylesheet">
+
+</head>
+
+<body>
+
+	<!-- Train Scheduler -->
+	<div class="container">
+
+		<!-- Header -->
+		<div class="page-header" style="background-color: #0077c2 ; color: black">
+			<div id="h1-holder">
+				<h1>XYZ</h1>
+				<h1 id="plane">Exercise Tracker</h1>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-12">
+				<!-- Add Exercise -->
+				<div class="panel panel-primary" style="border-color: #42a5f5">
+
+					<!-- Add Exercise Modal Trigger/Button -->
+					<button type="button" class="btn-add panel-heading" id="new-exercise-banner" data-toggle="collapse" data-target="#add-exercise-body">
+						<h3 class="panel-title"><strong>Add Exercise</strong></h3>
+						<img class="icon" id="icon-add" src="/images/plus-icon.png" title="Add Exercise" alt="Add">
+					</button>
+					
+					<!-- New Exercise Modal -->
+					<div class="panel-body collapse" id="add-exercise-body">
+						<div class="card-content">
+							<!-- Entry Form -->
+							<form method=POST action="/">
+								<input type="text" name="formType" value="input" style="display: none;">
+								<div class="input-group time">
+									<span class="input-group basic-addon4">Exercise Name</span>
+									<input type="text" class="form-control time" name="name" required>
+								</div>
+								<br>
+								<div class="input-group time">
+									<span class="input-group basic-addon4">Reps</span>
+									<input type="text" class="form-control time" name="reps" placeholder="#" data-min="0" data-max="59" data-zeros="true" data-wrap="true" required>
+								</div>
+								<br>
+								<div class="input-group time">
+									<span class="input-group basic-addon3">Weight</span>
+									<div id="time-div">
+										<input name="weight" type="number" class="form-control time" id="weight" data-min="0" data-zeros="true" placeholder="#" required>
+										<select id="unit" name="unit" style="min-width: 25%;">
+											<option value="lb" selected>lb</option>
+											<option value="kg">kg</option>
+										</select>
+									</div>
+								</div>
+								<div class="input-group time">
+									<span class="input-group basic-addon3">Date</span>
+									<div id="time-div">
+										<select class="month-select" name="month" style="width: 33%;">
+											<option value="" disabled selected>MM</option>
+										</select>
+										<select class="day-select" name="day" style="width: 33%;">
+											<option value="" disabled selected>DD</option>
+										</select>
+										<select class="year-select" name="year" style="width: 34%;">
+											<option value="" disabled selected>YYYY</option>
+										</select>
+									</div>
+								</div>
+								<br>
+								<button class="btn btn-sub" id="add-exercise" type="submit">Submit</button>
+							</form>
+						</div>
+					</div>
+				</div>
+
+
+				<!-- Existing  Exercises -->
+				<div class="panel panel-primary" style="border-color: #42a5f5">
+					<div class="panel-heading" style="background-color: #42a5f5; color:black; border-color:#42a5f5">
+						<h3 class="panel-title"><strong>Exercise Log</strong></h3>
+					</div>
+					<div class="panel-body">
+						<table class="table table-hover" style="border-color:#E1E2E1">
+							<tbody>
+								<tr>
+									<th>Exercise Name</th>
+									<th class="center">Reps</th>
+									<th class="center">Weight</th>
+									<th class="center">Unit</th>
+									<th>Date</th>
+									<th></th>
+								</tr>
+								{{#each results }}
+								<tr>
+									<td id="log-name-{{id}}">{{name}}</td>
+									<td id="log-reps-{{id}}" class="center">{{reps}}</td>
+									<td id="log-weight-{{id}}" class="center">{{weight}}</td>
+									<td id="log-unit-{{id}}" class="center">{{unit}}</td>
+									<td id="log-date-{{id}}" class="format-date">{{date}}</td>
+									<td>
+										<button type="button" class="btn-update" data-toggle="modal" data-target="#update-exercise-body" onclick="updateExercise({{id}})">
+											<img class="icon" src="/images/edit-icon.png" title="Edit" alt="edit">
+										</button>
+										<button type="button" class="btn-delete" data-toggle="modal" data-target="#delete-exercise-body" onclick="deleteExercise({{id}})">
+											<img class="icon" src="/images/delete-icon-24.png" title="Delete" alt="delete">
+										</button>
+										<form method="POST" action="/" style="display: none" id="delete-form">
+											<input type="text" name="formType" value="delete" style="display: none;">
+											<input type="text" name="id" id="delete-id-input" style="display: none;">
+										</form>
+									</td>
+								</tr>
+								{{/each}}
+							</tbody>
+						</table>
+					</div>
+
+				<!-- Update Exercise Modal -->
+					<div class="panel-body modal" id="update-exercise-body">
+						<div class="modal-content">
+							<h3 class="modal-title">Update Exercise</h3>
+							<!-- Entry Form -->
+							<form method=POST action="/">
+								<input type="text" name="formType" value="update" style="display: none;">
+								<input type="text" name="id" id="update-id-input" style="display: none;">
+
+								<div class="input-group time">
+									<span class="input-group basic-addon4">Exercise Name</span>
+									<input type="text" id="update-name-input" class="form-control time" name="name" required>
+								</div>
+								<br>
+								<div class="input-group time">
+									<span class="input-group basic-addon4">Reps</span>
+									<input type="text" id="update-reps-input" class="form-control time" name="reps" placeholder="#" data-min="0" data-max="59" data-zeros="true" data-wrap="true" required>
+								</div>
+								<br>
+								<div class="input-group time">
+									<span class="input-group basic-addon3">Weight</span>
+									<div id="time-div">
+										<input name="weight" type="number" id="update-weight-input" class="form-control time" id="weight" data-min="0" data-zeros="true" placeholder="#" required>
+										<select id="update-unit-input" name="unit" style="min-width: 25%;">
+											<option value="lb">lb</option>
+											<option value="kg">kg</option>
+										</select>
+									</div>
+								</div>
+								<div class="input-group time">
+									<span class="input-group basic-addon3">Date</span>
+									<div id="time-div">
+										<select id="update-month-input" class="month-select" name="month" style="width: 33%;"></select>
+										<select id="update-day-input" class="day-select" name="day" style="width: 33%;"></select>
+										<select id="update-year-input" class="year-select" name="year" style="width: 34%;"></select>
+									</div>
+								</div>
+								<br>
+								<button class="btn btn-sub" id="add-exercise" type="submit">Submit</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+
+	<!-- JQuery & Bootstrap -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+	<!-- JS file -->
+	<script src="/js/main.js"></script>
+
+</body>
+
+</html>
